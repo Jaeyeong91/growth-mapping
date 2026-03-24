@@ -12,11 +12,12 @@ export default function CompanyMentorView() {
   const { id } = useParams<{ id: string }>();
   const mentorEmail = decodeURIComponent(id || '');
   const { currentUser, users } = useAuth();
-  const { getAvailability, isSlotBooked, isSlotBlocked, createBooking } = useBooking();
+  const { getAvailability, isSlotBooked, isSlotBlocked, refreshBookings } = useBooking();
   const { showToast } = useToast();
   const navigate = useNavigate();
 
   const [modal, setModal] = useState<{ date: string; hour: number } | null>(null);
+  const [submitting, setSubmitting] = useState(false);
 
   if (!currentUser) return null;
 
@@ -24,17 +25,40 @@ export default function CompanyMentorView() {
   const availSlots = getAvailability(mentorEmail);
   const availSet = new Set(availSlots.map(a => `${a.date}_${a.hour}`));
 
-  const handleBook = () => {
+  const handleBook = async () => {
     if (!modal) return;
-    const result = createBooking(mentorEmail, currentUser.email, modal.date, modal.hour);
-    setModal(null);
-    if (result) {
-      logBooking(currentUser.email, currentUser.name, mentorEmail, mentor?.name || mentorEmail, modal.date, formatHour(modal.hour));
-      showToast('예약이 신청되었습니다. 관리자 승인을 기다려주세요.', 'success');
-      navigate('/company');
-    } else {
-      showToast('이미 예약된 슬롯입니다.', 'error');
+    setSubmitting(true);
+    try {
+      // API를 통해 예약 생성 + Chat 알림 전송
+      const response = await fetch('/api/bookings', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          mentorEmail,
+          companyEmail: currentUser.email,
+          date: modal.date,
+          hour: modal.hour,
+        }),
+      });
+      if (response.ok) {
+        logBooking(currentUser.email, currentUser.name, mentorEmail, mentor?.name || mentorEmail, modal.date, formatHour(modal.hour));
+        // BookingContext 새로고침
+        await refreshBookings();
+        setModal(null);
+        showToast('예약이 신청되었습니다. 관리자 승인을 기다려주세요.', 'success');
+        navigate('/company');
+      } else if (response.status === 409) {
+        setModal(null);
+        showToast('이미 예약된 슬롯입니다.', 'error');
+      } else {
+        setModal(null);
+        showToast('예약 처리 중 오류가 발생했습니다.', 'error');
+      }
+    } catch {
+      setModal(null);
+      showToast('네트워크 오류가 발생했습니다.', 'error');
     }
+    setSubmitting(false);
   };
 
   return (
@@ -48,7 +72,6 @@ export default function CompanyMentorView() {
           <h1 className="text-2xl font-bold text-gray-900">{mentor?.name || mentorEmail} 일정</h1>
         </div>
 
-        {/* 범례 */}
         <div className="flex gap-4 mb-4 text-sm text-gray-600">
           <span className="flex items-center gap-1"><span className="w-4 h-4 rounded bg-[#FF5E27] inline-block"></span> 예약 가능</span>
           <span className="flex items-center gap-1"><span className="w-4 h-4 rounded bg-gray-400 inline-block"></span> 예약됨</span>
@@ -107,7 +130,6 @@ export default function CompanyMentorView() {
         ))}
       </main>
 
-      {/* 예약 확인 모달 */}
       {modal && (
         <div className="fixed inset-0 bg-black/40 flex items-center justify-center z-50 px-4">
           <div className="bg-white rounded-xl shadow-xl max-w-sm w-full p-6">
@@ -126,9 +148,10 @@ export default function CompanyMentorView() {
               </button>
               <button
                 onClick={handleBook}
-                className="flex-1 py-2 bg-[#FF5E27] text-white rounded-lg hover:bg-[#e5511f] transition"
+                disabled={submitting}
+                className="flex-1 py-2 bg-[#FF5E27] text-white rounded-lg hover:bg-[#e5511f] transition disabled:opacity-50"
               >
-                예약 신청
+                {submitting ? '처리중...' : '예약 신청'}
               </button>
             </div>
           </div>

@@ -14,8 +14,8 @@ export default function MentorSchedule() {
   const { showToast } = useToast();
   const navigate = useNavigate();
 
-  // 현재 멘토의 가능 슬롯 set
   const [selectedSlots, setSelectedSlots] = useState<Set<string>>(new Set());
+  const [saving, setSaving] = useState(false);
 
   useEffect(() => {
     if (!currentUser) return;
@@ -38,13 +38,15 @@ export default function MentorSchedule() {
     });
   };
 
-  const handleSave = () => {
+  const handleSave = async () => {
+    setSaving(true);
     const slots = Array.from(selectedSlots).map(key => {
       const [date, hourStr] = key.split('_');
       return { date, hour: Number(hourStr), isAvailable: true };
     });
-    setAvailability(currentUser.email, slots);
+    await setAvailability(currentUser.email, slots);
     logSchedule(currentUser.email, currentUser.name, slots.length);
+    setSaving(false);
     showToast('일정이 저장되었습니다.', 'success');
     navigate('/mentor');
   };
@@ -59,13 +61,12 @@ export default function MentorSchedule() {
             <button onClick={() => navigate('/mentor')} className="px-4 py-2 border border-gray-300 rounded-lg text-gray-700 hover:bg-gray-50 transition">
               취소
             </button>
-            <button onClick={handleSave} className="px-4 py-2 bg-[#FF5E27] text-white rounded-lg hover:bg-[#e5511f] transition">
-              저장
+            <button onClick={handleSave} disabled={saving} className="px-4 py-2 bg-[#FF5E27] text-white rounded-lg hover:bg-[#e5511f] transition disabled:opacity-50">
+              {saving ? '저장중...' : '저장'}
             </button>
           </div>
         </div>
 
-        {/* 범례 */}
         <div className="flex gap-4 mb-4 text-sm text-gray-600">
           <span className="flex items-center gap-1"><span className="w-4 h-4 rounded bg-[#FF5E27] inline-block"></span> 선택됨</span>
           <span className="flex items-center gap-1"><span className="w-4 h-4 rounded bg-gray-200 inline-block"></span> 미선택</span>

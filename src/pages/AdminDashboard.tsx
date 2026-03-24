@@ -10,7 +10,7 @@ import { logApproval } from '../utils/logger';
 
 export default function AdminDashboard() {
   const { currentUser, users } = useAuth();
-  const { bookings, updateBookingStatus, getAvailability } = useBooking();
+  const { bookings, updateBookingStatus, getAvailability, refreshBookings } = useBooking();
   const { showToast } = useToast();
   const navigate = useNavigate();
 
@@ -20,13 +20,11 @@ export default function AdminDashboard() {
 
   const mentors = users.filter(u => u.role === 'mentor');
 
-  // 통계
   const total = bookings.length;
   const pending = bookings.filter(b => b.status === 'pending').length;
   const approved = bookings.filter(b => b.status === 'approved').length;
   const rejected = bookings.filter(b => b.status === 'rejected').length;
 
-  // 필터링된 예약
   const filtered = bookings.filter(b => {
     if (statusFilter !== 'all' && b.status !== statusFilter) return false;
     if (mentorFilter !== 'all' && b.mentorEmail !== mentorFilter) return false;
@@ -36,7 +34,7 @@ export default function AdminDashboard() {
 
   const uniqueDates = [...new Set(bookings.map(b => b.date))].sort();
 
-  const handleStatus = (id: string, status: BookingStatus) => {
+  const handleStatus = async (id: string, status: BookingStatus) => {
     const booking = bookings.find(b => b.id === id);
     if (booking) {
       const mentor = users.find(u => u.email === booking.mentorEmail);
@@ -47,8 +45,28 @@ export default function AdminDashboard() {
         formatHour(booking.hour), status === 'approved' ? '승인' : '거절',
       );
     }
-    updateBookingStatus(id, status);
-    showToast(status === 'approved' ? '승인되었습니다.' : '거절되었습니다.', status === 'approved' ? 'success' : 'info');
+
+    if (status === 'approved') {
+      // 승인 시 API를 통해 Calendar 일정도 함께 생성
+      try {
+        const response = await fetch(`/api/bookings/${id}/admin-approve`, { method: 'POST' });
+        const result = await response.json();
+        await refreshBookings();
+        if (result.calendarCreated) {
+          showToast('승인 완료! 캘린더 일정이 자동 생성되었습니다.', 'success');
+        } else if (result.calendarError) {
+          showToast('승인 완료. (캘린더 생성 실패 - 설정을 확인하세요)', 'info');
+        } else {
+          showToast('승인되었습니다.', 'success');
+        }
+      } catch {
+        await updateBookingStatus(id, status);
+        showToast('승인되었습니다. (캘린더 연동 실패)', 'info');
+      }
+    } else {
+      await updateBookingStatus(id, status);
+      showToast('거절되었습니다.', 'info');
+    }
   };
 
   return (
@@ -65,7 +83,6 @@ export default function AdminDashboard() {
           </button>
         </div>
 
-        {/* 요약 통계 */}
         <div className="grid grid-cols-2 sm:grid-cols-4 gap-4 mb-8">
           <StatCard label="총 예약" value={total} color="text-gray-900" />
           <StatCard label="대기중" value={pending} color="text-amber-600" />
@@ -73,7 +90,6 @@ export default function AdminDashboard() {
           <StatCard label="거절됨" value={rejected} color="text-red-600" />
         </div>
 
-        {/* 멘토별 현황 */}
         <div className="bg-white rounded-xl shadow-sm overflow-hidden mb-8">
           <div className="px-6 py-4 border-b">
             <h2 className="text-lg font-semibold text-gray-900">멘토별 예약 현황</h2>
@@ -115,7 +131,6 @@ export default function AdminDashboard() {
           </div>
         </div>
 
-        {/* 필터 */}
         <div className="bg-white rounded-xl shadow-sm overflow-hidden">
           <div className="px-6 py-4 border-b flex flex-wrap items-center gap-4">
             <h2 className="text-lg font-semibold text-gray-900 mr-auto">전체 예약 목록</h2>

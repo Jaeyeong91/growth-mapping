@@ -21,7 +21,7 @@ export default function CompanyDashboard() {
   const myBookings = bookings.filter(b => b.companyEmail === currentUser.email && b.status !== 'cancelled');
   const mentors = users.filter(u => u.role === 'mentor');
 
-  const handleCancel = () => {
+  const handleCancel = async () => {
     if (!cancelModal) return;
     const mentor = users.find(u => u.email === cancelModal.mentorEmail);
     logCancel(
@@ -29,7 +29,7 @@ export default function CompanyDashboard() {
       cancelModal.mentorEmail, mentor?.name || cancelModal.mentorEmail,
       cancelModal.date, formatHour(cancelModal.hour),
     );
-    cancelBooking(cancelModal.id);
+    await cancelBooking(cancelModal.id);
     setCancelModal(null);
     showToast('예약이 취소되었습니다.', 'info');
   };
@@ -40,7 +40,6 @@ export default function CompanyDashboard() {
       <main className="max-w-6xl mx-auto px-4 py-6">
         <h1 className="text-2xl font-bold text-gray-900 mb-6">기업 대시보드</h1>
 
-        {/* 멘토 카드 리스트 */}
         <h2 className="text-lg font-semibold text-gray-800 mb-3">멘토 선택</h2>
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 mb-8">
           {mentors.map(mentor => {
@@ -67,7 +66,6 @@ export default function CompanyDashboard() {
           })}
         </div>
 
-        {/* 내 예약 목록 */}
         <div className="bg-white rounded-xl shadow-sm overflow-hidden">
           <div className="px-6 py-4 border-b">
             <h2 className="text-lg font-semibold text-gray-900">내 예약 목록</h2>
@@ -119,7 +117,6 @@ export default function CompanyDashboard() {
         </div>
       </main>
 
-      {/* 취소 확인 모달 */}
       {cancelModal && (
         <div className="fixed inset-0 bg-black/40 flex items-center justify-center z-50 px-4">
           <div className="bg-white rounded-xl shadow-xl max-w-sm w-full p-6">

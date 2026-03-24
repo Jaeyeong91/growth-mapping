@@ -18,9 +18,9 @@ export default function AdminMentorSchedule() {
   const availSlots = getAvailability(mentorEmail);
   const availSet = new Set(availSlots.map(a => `${a.date}_${a.hour}`));
 
-  const handleToggle = (date: string, hour: number) => {
-    toggleBlockSlot(mentorEmail, date, hour);
+  const handleToggle = async (date: string, hour: number) => {
     const wasBlocked = isSlotBlocked(mentorEmail, date, hour);
+    await toggleBlockSlot(mentorEmail, date, hour);
     showToast(wasBlocked ? '블록이 해제되었습니다.' : '슬롯이 블록되었습니다.', 'info');
   };
 
@@ -39,7 +39,6 @@ export default function AdminMentorSchedule() {
           멘토가 오픈한 슬롯을 블록하면 기업이 해당 시간에 예약할 수 없습니다.
         </p>
 
-        {/* 범례 */}
         <div className="flex flex-wrap gap-4 mb-4 text-sm text-gray-600">
           <span className="flex items-center gap-1"><span className="w-4 h-4 rounded bg-[#FF5E27] inline-block"></span> 예약 가능</span>
           <span className="flex items-center gap-1"><span className="w-4 h-4 rounded bg-red-400 inline-block"></span> 관리자 블록</span>

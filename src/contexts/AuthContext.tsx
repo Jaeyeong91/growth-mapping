@@ -1,45 +1,48 @@
-import { createContext, useContext, useState, useEffect, ReactNode } from 'react';
+import { createContext, useContext, useState, useEffect, ReactNode, useCallback } from 'react';
 import { User } from '../types';
-import { INITIAL_USERS } from '../data/initialData';
+import { supabase } from '../lib/supabase';
 
 interface AuthContextType {
   currentUser: User | null;
   users: User[];
-  login: (email: string) => User | null;
+  loading: boolean;
+  login: (email: string) => Promise<User | null>;
   logout: () => void;
-  addUser: (user: User) => boolean;
-  removeUser: (email: string) => boolean;
+  addUser: (user: User) => Promise<boolean>;
+  removeUser: (email: string) => Promise<boolean>;
+  refreshUsers: () => Promise<void>;
 }
 
 const AuthContext = createContext<AuthContextType | null>(null);
-
-const USERS_KEY = 'gm_users';
-const USERS_VERSION_KEY = 'gm_users_version';
 const CURRENT_USER_KEY = 'gm_current_user';
-const CURRENT_VERSION = '2';
-
-function loadUsers(): User[] {
-  const storedVersion = localStorage.getItem(USERS_VERSION_KEY);
-  if (storedVersion === CURRENT_VERSION) {
-    const stored = localStorage.getItem(USERS_KEY);
-    if (stored) return JSON.parse(stored);
-  }
-  localStorage.setItem(USERS_KEY, JSON.stringify(INITIAL_USERS));
-  localStorage.setItem(USERS_VERSION_KEY, CURRENT_VERSION);
-  localStorage.removeItem(CURRENT_USER_KEY);
-  return INITIAL_USERS;
-}
 
 export function AuthProvider({ children }: { children: ReactNode }) {
-  const [users, setUsers] = useState<User[]>(loadUsers);
+  const [users, setUsers] = useState<User[]>([]);
   const [currentUser, setCurrentUser] = useState<User | null>(() => {
     const stored = localStorage.getItem(CURRENT_USER_KEY);
     return stored ? JSON.parse(stored) : null;
   });
+  const [loading, setLoading] = useState(true);
+
+  const refreshUsers = useCallback(async () => {
+    const { data, error } = await supabase
+      .from('users')
+      .select('*')
+      .order('created_at');
+    if (!error && data) {
+      const mapped: User[] = data.map(row => ({
+        email: row.email,
+        name: row.name,
+        role: row.role,
+        createdAt: row.created_at,
+      }));
+      setUsers(mapped);
+    }
+  }, []);
 
   useEffect(() => {
-    localStorage.setItem(USERS_KEY, JSON.stringify(users));
-  }, [users]);
+    refreshUsers().then(() => setLoading(false));
+  }, [refreshUsers]);
 
   useEffect(() => {
     if (currentUser) {
@@ -49,28 +52,47 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     }
   }, [currentUser]);
 
-  const login = (email: string): User | null => {
-    const user = users.find(u => u.email.toLowerCase() === email.toLowerCase());
-    if (user) setCurrentUser(user);
-    return user || null;
+  const login = async (email: string): Promise<User | null> => {
+    const { data, error } = await supabase
+      .from('users')
+      .select('*')
+      .ilike('email', email)
+      .single();
+    if (error || !data) return null;
+    const user: User = {
+      email: data.email,
+      name: data.name,
+      role: data.role,
+      createdAt: data.created_at,
+    };
+    setCurrentUser(user);
+    return user;
   };
 
   const logout = () => setCurrentUser(null);
 
-  const addUser = (user: User): boolean => {
-    if (users.some(u => u.email.toLowerCase() === user.email.toLowerCase())) return false;
-    setUsers(prev => [...prev, user]);
+  const addUser = async (user: User): Promise<boolean> => {
+    const { error } = await supabase
+      .from('users')
+      .insert({ email: user.email, name: user.name, role: user.role });
+    if (error) return false;
+    await refreshUsers();
     return true;
   };
 
-  const removeUser = (email: string): boolean => {
+  const removeUser = async (email: string): Promise<boolean> => {
     if (email.toLowerCase() === 'jaeyeong@dcamp.kr') return false;
-    setUsers(prev => prev.filter(u => u.email.toLowerCase() !== email.toLowerCase()));
+    const { error } = await supabase
+      .from('users')
+      .delete()
+      .ilike('email', email);
+    if (error) return false;
+    await refreshUsers();
     return true;
   };
 
   return (
-    <AuthContext.Provider value={{ currentUser, users, login, logout, addUser, removeUser }}>
+    <AuthContext.Provider value={{ currentUser, users, loading, login, logout, addUser, removeUser, refreshUsers }}>
       {children}
     </AuthContext.Provider>
   );

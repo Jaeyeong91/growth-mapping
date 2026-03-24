@@ -23,6 +23,20 @@ export interface Booking {
   date: string; // YYYY-MM-DD
   hour: number; // 9~17
   status: BookingStatus;
+  googleEventId?: string;
+  wrapupEventId?: string;
+  chatMessageId?: string;
+  chatNotified?: boolean;
+  calendarCreated?: boolean;
   createdAt: string;
   updatedAt: string;
+}
+
+export interface CompanyManagerMapping {
+  id: string;
+  companyEmail: string;
+  managerName: string;
+  managerEmail: string;
+  googleChatWebhook?: string;
+  createdAt: string;
 }

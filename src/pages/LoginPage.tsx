@@ -6,13 +6,16 @@ import { logLogin } from '../utils/logger';
 
 export default function LoginPage() {
   const [email, setEmail] = useState('');
+  const [submitting, setSubmitting] = useState(false);
   const { login } = useAuth();
   const { showToast } = useToast();
   const navigate = useNavigate();
 
-  const handleSubmit = (e: FormEvent) => {
+  const handleSubmit = async (e: FormEvent) => {
     e.preventDefault();
-    const user = login(email.trim());
+    setSubmitting(true);
+    const user = await login(email.trim());
+    setSubmitting(false);
     if (!user) {
       showToast('등록되지 않은 이메일입니다.', 'error');
       return;
@@ -43,14 +46,16 @@ export default function LoginPage() {
                 onChange={e => setEmail(e.target.value)}
                 placeholder="이메일을 입력하세요"
                 required
+                disabled={submitting}
                 className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-[#FF5E27] focus:border-[#FF5E27] outline-none transition text-gray-900"
               />
             </div>
             <button
               type="submit"
-              className="w-full py-3 bg-[#FF5E27] text-white rounded-lg font-medium hover:bg-[#e5511f] transition"
+              disabled={submitting}
+              className="w-full py-3 bg-[#FF5E27] text-white rounded-lg font-medium hover:bg-[#e5511f] transition disabled:opacity-50"
             >
-              로그인
+              {submitting ? '로그인 중...' : '로그인'}
             </button>
           </form>
           <p className="text-xs text-gray-400 text-center mt-6">
