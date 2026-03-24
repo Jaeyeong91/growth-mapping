@@ -12,7 +12,7 @@ export default function MentorDashboard() {
   if (!currentUser) return null;
 
   const myAvailSlots = getAvailability(currentUser.email);
-  const myBookings = bookings.filter(b => b.mentorEmail === currentUser.email && b.status !== 'rejected');
+  const myBookings = bookings.filter(b => b.mentorEmail === currentUser.email && b.status !== 'rejected' && b.status !== 'cancelled');
 
   return (
     <div className="min-h-screen bg-[#F9FAFB]">
@@ -22,7 +22,7 @@ export default function MentorDashboard() {
           <h1 className="text-2xl font-bold text-gray-900">멘토 대시보드</h1>
           <button
             onClick={() => navigate('/mentor/schedule')}
-            className="px-4 py-2 bg-[#2563EB] text-white rounded-lg hover:bg-blue-700 transition"
+            className="px-4 py-2 bg-[#FF5E27] text-white rounded-lg hover:bg-[#e5511f] transition"
           >
             일정 등록
           </button>
@@ -32,7 +32,7 @@ export default function MentorDashboard() {
         <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 mb-8">
           <div className="bg-white p-6 rounded-xl shadow-sm">
             <p className="text-sm text-gray-500">등록된 슬롯</p>
-            <p className="text-3xl font-bold text-[#2563EB]">{myAvailSlots.length}</p>
+            <p className="text-3xl font-bold text-[#FF5E27]">{myAvailSlots.length}</p>
           </div>
           <div className="bg-white p-6 rounded-xl shadow-sm">
             <p className="text-sm text-gray-500">예약된 슬롯</p>
@@ -89,8 +89,9 @@ function StatusBadge({ status }: { status: string }) {
     pending: 'bg-amber-100 text-amber-700',
     approved: 'bg-green-100 text-green-700',
     rejected: 'bg-red-100 text-red-700',
+    cancelled: 'bg-gray-100 text-gray-500',
   };
-  const labels = { pending: '대기중', approved: '승인됨', rejected: '거절됨' };
+  const labels = { pending: '대기중', approved: '승인됨', rejected: '거절됨', cancelled: '취소됨' };
   return (
     <span className={`px-2 py-1 rounded-full text-xs font-medium ${styles[status as keyof typeof styles] || ''}`}>
       {labels[status as keyof typeof labels] || status}

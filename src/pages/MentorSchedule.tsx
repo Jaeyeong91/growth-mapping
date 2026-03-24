@@ -59,7 +59,7 @@ export default function MentorSchedule() {
             <button onClick={() => navigate('/mentor')} className="px-4 py-2 border border-gray-300 rounded-lg text-gray-700 hover:bg-gray-50 transition">
               취소
             </button>
-            <button onClick={handleSave} className="px-4 py-2 bg-[#2563EB] text-white rounded-lg hover:bg-blue-700 transition">
+            <button onClick={handleSave} className="px-4 py-2 bg-[#FF5E27] text-white rounded-lg hover:bg-[#e5511f] transition">
               저장
             </button>
           </div>
@@ -67,7 +67,7 @@ export default function MentorSchedule() {
 
         {/* 범례 */}
         <div className="flex gap-4 mb-4 text-sm text-gray-600">
-          <span className="flex items-center gap-1"><span className="w-4 h-4 rounded bg-blue-500 inline-block"></span> 선택됨</span>
+          <span className="flex items-center gap-1"><span className="w-4 h-4 rounded bg-[#FF5E27] inline-block"></span> 선택됨</span>
           <span className="flex items-center gap-1"><span className="w-4 h-4 rounded bg-gray-200 inline-block"></span> 미선택</span>
           <span className="flex items-center gap-1"><span className="w-4 h-4 rounded bg-gray-400 inline-block"></span> 예약됨 (수정불가)</span>
         </div>
@@ -102,7 +102,7 @@ export default function MentorSchedule() {
                                 booked
                                   ? 'bg-gray-400 text-white cursor-not-allowed'
                                   : selected
-                                  ? 'bg-blue-500 text-white hover:bg-blue-600'
+                                  ? 'bg-[#FF5E27] text-white hover:bg-[#e5511f]'
                                   : 'bg-gray-100 text-gray-500 hover:bg-gray-200'
                               }`}
                             >

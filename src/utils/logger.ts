@@ -25,6 +25,14 @@ export function logBooking(
   sendLog({ type: 'booking', companyEmail, companyName, mentorEmail, mentorName, date, hour });
 }
 
+export function logCancel(
+  companyEmail: string, companyName: string,
+  mentorEmail: string, mentorName: string,
+  date: string, hour: string,
+) {
+  sendLog({ type: 'cancel', companyEmail, companyName, mentorEmail, mentorName, date, hour });
+}
+
 export function logApproval(
   adminName: string, mentorName: string, companyName: string,
   date: string, hour: string, status: string,

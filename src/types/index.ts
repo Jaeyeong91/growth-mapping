@@ -14,7 +14,7 @@ export interface MentorAvailability {
   isAvailable: boolean;
 }
 
-export type BookingStatus = 'pending' | 'approved' | 'rejected';
+export type BookingStatus = 'pending' | 'approved' | 'rejected' | 'cancelled';
 
 export interface Booking {
   id: string;

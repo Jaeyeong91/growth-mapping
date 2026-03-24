@@ -43,12 +43,12 @@ export default function LoginPage() {
                 onChange={e => setEmail(e.target.value)}
                 placeholder="이메일을 입력하세요"
                 required
-                className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none transition text-gray-900"
+                className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-[#FF5E27] focus:border-[#FF5E27] outline-none transition text-gray-900"
               />
             </div>
             <button
               type="submit"
-              className="w-full py-3 bg-[#2563EB] text-white rounded-lg font-medium hover:bg-blue-700 transition"
+              className="w-full py-3 bg-[#FF5E27] text-white rounded-lg font-medium hover:bg-[#e5511f] transition"
             >
               로그인
             </button>

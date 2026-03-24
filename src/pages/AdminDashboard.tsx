@@ -59,7 +59,7 @@ export default function AdminDashboard() {
           <h1 className="text-2xl font-bold text-gray-900">관리자 대시보드</h1>
           <button
             onClick={() => navigate('/admin/accounts')}
-            className="px-4 py-2 bg-[#2563EB] text-white rounded-lg hover:bg-blue-700 transition"
+            className="px-4 py-2 bg-[#FF5E27] text-white rounded-lg hover:bg-[#e5511f] transition"
           >
             계정 관리
           </button>
@@ -92,7 +92,7 @@ export default function AdminDashboard() {
               <tbody className="divide-y">
                 {mentors.map(m => {
                   const slots = getAvailability(m.email).length;
-                  const booked = bookings.filter(b => b.mentorEmail === m.email && b.status !== 'rejected').length;
+                  const booked = bookings.filter(b => b.mentorEmail === m.email && b.status !== 'rejected' && b.status !== 'cancelled').length;
                   return (
                     <tr key={m.email}>
                       <td className="px-6 py-3">{m.name}</td>
@@ -102,7 +102,7 @@ export default function AdminDashboard() {
                       <td className="px-6 py-3 text-center">
                         <button
                           onClick={() => navigate(`/admin/mentor/${encodeURIComponent(m.email)}`)}
-                          className="px-3 py-1 bg-blue-50 text-blue-600 rounded text-xs hover:bg-blue-100 transition"
+                          className="px-3 py-1 bg-orange-50 text-[#FF5E27] rounded text-xs hover:bg-orange-100 transition"
                         >
                           일정 관리
                         </button>
@@ -222,8 +222,9 @@ function StatusBadge({ status }: { status: string }) {
     pending: 'bg-amber-100 text-amber-700',
     approved: 'bg-green-100 text-green-700',
     rejected: 'bg-red-100 text-red-700',
+    cancelled: 'bg-gray-100 text-gray-500',
   };
-  const labels = { pending: '대기중', approved: '승인됨', rejected: '거절됨' };
+  const labels = { pending: '대기중', approved: '승인됨', rejected: '거절됨', cancelled: '취소됨' };
   return (
     <span className={`px-2 py-1 rounded-full text-xs font-medium ${styles[status as keyof typeof styles] || ''}`}>
       {labels[status as keyof typeof labels] || status}

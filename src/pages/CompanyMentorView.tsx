@@ -50,7 +50,7 @@ export default function CompanyMentorView() {
 
         {/* 범례 */}
         <div className="flex gap-4 mb-4 text-sm text-gray-600">
-          <span className="flex items-center gap-1"><span className="w-4 h-4 rounded bg-blue-500 inline-block"></span> 예약 가능</span>
+          <span className="flex items-center gap-1"><span className="w-4 h-4 rounded bg-[#FF5E27] inline-block"></span> 예약 가능</span>
           <span className="flex items-center gap-1"><span className="w-4 h-4 rounded bg-gray-400 inline-block"></span> 예약됨</span>
           <span className="flex items-center gap-1"><span className="w-4 h-4 rounded bg-gray-100 inline-block border"></span> 미팅 불가</span>
         </div>
@@ -82,7 +82,7 @@ export default function CompanyMentorView() {
                             {available && !booked && !blocked ? (
                               <button
                                 onClick={() => setModal({ date, hour })}
-                                className="w-full py-2 rounded text-xs font-medium bg-blue-500 text-white hover:bg-blue-600 transition"
+                                className="w-full py-2 rounded text-xs font-medium bg-[#FF5E27] text-white hover:bg-[#e5511f] transition"
                               >
                                 예약
                               </button>
@@ -126,7 +126,7 @@ export default function CompanyMentorView() {
               </button>
               <button
                 onClick={handleBook}
-                className="flex-1 py-2 bg-[#2563EB] text-white rounded-lg hover:bg-blue-700 transition"
+                className="flex-1 py-2 bg-[#FF5E27] text-white rounded-lg hover:bg-[#e5511f] transition"
               >
                 예약 신청
               </button>

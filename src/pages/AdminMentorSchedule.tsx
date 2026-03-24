@@ -41,7 +41,7 @@ export default function AdminMentorSchedule() {
 
         {/* 범례 */}
         <div className="flex flex-wrap gap-4 mb-4 text-sm text-gray-600">
-          <span className="flex items-center gap-1"><span className="w-4 h-4 rounded bg-blue-500 inline-block"></span> 예약 가능</span>
+          <span className="flex items-center gap-1"><span className="w-4 h-4 rounded bg-[#FF5E27] inline-block"></span> 예약 가능</span>
           <span className="flex items-center gap-1"><span className="w-4 h-4 rounded bg-red-400 inline-block"></span> 관리자 블록</span>
           <span className="flex items-center gap-1"><span className="w-4 h-4 rounded bg-gray-400 inline-block"></span> 예약됨</span>
           <span className="flex items-center gap-1"><span className="w-4 h-4 rounded bg-gray-100 inline-block border"></span> 미등록</span>
@@ -83,7 +83,7 @@ export default function AdminMentorSchedule() {
                                 className={`w-full py-2 rounded text-xs font-medium transition ${
                                   blocked
                                     ? 'bg-red-400 text-white hover:bg-red-500'
-                                    : 'bg-blue-500 text-white hover:bg-blue-600'
+                                    : 'bg-[#FF5E27] text-white hover:bg-[#e5511f]'
                                 }`}
                               >
                                 {blocked ? '블록됨' : '가능'}

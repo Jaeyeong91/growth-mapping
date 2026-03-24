@@ -10,6 +10,7 @@ interface BookingContextType {
   getAvailability: (mentorEmail: string) => MentorAvailability[];
   createBooking: (mentorEmail: string, companyEmail: string, date: string, hour: number) => Booking | null;
   updateBookingStatus: (bookingId: string, status: BookingStatus) => void;
+  cancelBooking: (bookingId: string) => void;
   isSlotBooked: (mentorEmail: string, date: string, hour: number) => boolean;
   getBookingForSlot: (mentorEmail: string, date: string, hour: number) => Booking | undefined;
   toggleBlockSlot: (mentorEmail: string, date: string, hour: number) => void;
@@ -64,10 +65,10 @@ export function BookingProvider({ children }: { children: ReactNode }) {
     availabilities.filter(a => a.mentorEmail === mentorEmail && a.isAvailable);
 
   const isSlotBooked = (mentorEmail: string, date: string, hour: number) =>
-    bookings.some(b => b.mentorEmail === mentorEmail && b.date === date && b.hour === hour && b.status !== 'rejected');
+    bookings.some(b => b.mentorEmail === mentorEmail && b.date === date && b.hour === hour && b.status !== 'rejected' && b.status !== 'cancelled');
 
   const getBookingForSlot = (mentorEmail: string, date: string, hour: number) =>
-    bookings.find(b => b.mentorEmail === mentorEmail && b.date === date && b.hour === hour && b.status !== 'rejected');
+    bookings.find(b => b.mentorEmail === mentorEmail && b.date === date && b.hour === hour && b.status !== 'rejected' && b.status !== 'cancelled');
 
   const createBooking = (mentorEmail: string, companyEmail: string, date: string, hour: number): Booking | null => {
     if (isSlotBooked(mentorEmail, date, hour)) return null;
@@ -92,6 +93,14 @@ export function BookingProvider({ children }: { children: ReactNode }) {
     );
   };
 
+  const cancelBooking = (bookingId: string) => {
+    setBookings(prev =>
+      prev.map(b => b.id === bookingId && b.status === 'pending'
+        ? { ...b, status: 'cancelled' as BookingStatus, updatedAt: new Date().toISOString() }
+        : b)
+    );
+  };
+
   const isSlotBlocked = (mentorEmail: string, date: string, hour: number) =>
     blockedSlots.has(`${mentorEmail}_${date}_${hour}`);
 
@@ -108,7 +117,7 @@ export function BookingProvider({ children }: { children: ReactNode }) {
   return (
     <BookingContext.Provider value={{
       availabilities, bookings, blockedSlots, setAvailability, getAvailability,
-      createBooking, updateBookingStatus, isSlotBooked, getBookingForSlot,
+      createBooking, updateBookingStatus, cancelBooking, isSlotBooked, getBookingForSlot,
       toggleBlockSlot, isSlotBlocked,
     }}>
       {children}

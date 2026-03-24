@@ -10,9 +10,9 @@ export default function Header() {
   if (!currentUser) return null;
 
   return (
-    <header className="bg-[#2563EB] text-white shadow-md">
+    <header className="bg-[#1A1A1A] text-white shadow-md">
       <div className="max-w-6xl mx-auto px-4 py-3 flex items-center justify-between">
-        <button onClick={() => navigate(`/${currentUser.role === 'company' ? 'company' : currentUser.role}`)} className="font-bold text-lg hover:opacity-80 transition">
+        <button onClick={() => navigate(`/${currentUser.role === 'company' ? 'company' : currentUser.role}`)} className="font-bold text-lg hover:text-[#FF5E27] transition">
           그로스맵핑
         </button>
         <div className="flex items-center gap-4">
@@ -21,7 +21,7 @@ export default function Header() {
           </span>
           <button
             onClick={() => { logout(); navigate('/login'); }}
-            className="text-sm bg-white/20 px-3 py-1 rounded hover:bg-white/30 transition"
+            className="text-sm border border-white/30 px-3 py-1 rounded hover:bg-[#FF5E27] hover:border-[#FF5E27] transition"
           >
             로그아웃
           </button>

@@ -73,7 +73,7 @@ export default function AdminAccounts() {
                 value={email}
                 onChange={e => setEmail(e.target.value)}
                 required
-                className="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm text-gray-900 focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none"
+                className="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm text-gray-900 focus:ring-2 focus:ring-[#FF5E27] focus:border-[#FF5E27] outline-none"
                 placeholder="email@example.com"
               />
             </div>
@@ -84,7 +84,7 @@ export default function AdminAccounts() {
                 value={name}
                 onChange={e => setName(e.target.value)}
                 required
-                className="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm text-gray-900 focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none"
+                className="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm text-gray-900 focus:ring-2 focus:ring-[#FF5E27] focus:border-[#FF5E27] outline-none"
                 placeholder="이름"
               />
             </div>
@@ -102,7 +102,7 @@ export default function AdminAccounts() {
             </div>
             <button
               type="submit"
-              className="px-6 py-2 bg-[#2563EB] text-white rounded-lg text-sm hover:bg-blue-700 transition"
+              className="px-6 py-2 bg-[#FF5E27] text-white rounded-lg text-sm hover:bg-[#e5511f] transition"
             >
               추가
             </button>
@@ -117,7 +117,7 @@ export default function AdminAccounts() {
                 key={t.value}
                 onClick={() => setRoleTab(t.value)}
                 className={`px-3 py-1.5 rounded-lg text-sm font-medium transition ${
-                  roleTab === t.value ? 'bg-blue-500 text-white' : 'bg-gray-100 text-gray-600 hover:bg-gray-200'
+                  roleTab === t.value ? 'bg-[#FF5E27] text-white' : 'bg-gray-100 text-gray-600 hover:bg-gray-200'
                 }`}
               >
                 {t.label} ({t.value === 'all' ? users.length : users.filter(u => u.role === t.value).length})
