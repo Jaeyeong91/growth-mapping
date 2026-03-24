@@ -6,6 +6,7 @@ import Header from '../components/Header';
 import { WEEK_GROUPS, TIME_SLOTS } from '../data/initialData';
 import { formatDate, formatHour } from '../utils/helpers';
 import { useToast } from '../contexts/ToastContext';
+import { logSchedule } from '../utils/logger';
 
 export default function MentorSchedule() {
   const { currentUser } = useAuth();
@@ -43,6 +44,7 @@ export default function MentorSchedule() {
       return { date, hour: Number(hourStr), isAvailable: true };
     });
     setAvailability(currentUser.email, slots);
+    logSchedule(currentUser.email, currentUser.name, slots.length);
     showToast('일정이 저장되었습니다.', 'success');
     navigate('/mentor');
   };

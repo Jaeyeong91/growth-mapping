@@ -6,6 +6,7 @@ import { useToast } from '../contexts/ToastContext';
 import Header from '../components/Header';
 import { WEEK_GROUPS, TIME_SLOTS } from '../data/initialData';
 import { formatDate, formatHour } from '../utils/helpers';
+import { logBooking } from '../utils/logger';
 
 export default function CompanyMentorView() {
   const { id } = useParams<{ id: string }>();
@@ -28,6 +29,7 @@ export default function CompanyMentorView() {
     const result = createBooking(mentorEmail, currentUser.email, modal.date, modal.hour);
     setModal(null);
     if (result) {
+      logBooking(currentUser.email, currentUser.name, mentorEmail, mentor?.name || mentorEmail, modal.date, formatHour(modal.hour));
       showToast('예약이 신청되었습니다. 관리자 승인을 기다려주세요.', 'success');
       navigate('/company');
     } else {

@@ -2,6 +2,7 @@ import { useState, FormEvent } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useAuth } from '../contexts/AuthContext';
 import { useToast } from '../contexts/ToastContext';
+import { logLogin } from '../utils/logger';
 
 export default function LoginPage() {
   const [email, setEmail] = useState('');
@@ -16,6 +17,7 @@ export default function LoginPage() {
       showToast('등록되지 않은 이메일입니다.', 'error');
       return;
     }
+    logLogin(user.email, user.name, user.role);
     showToast(`${user.name}님 환영합니다!`, 'success');
     const routes = { mentor: '/mentor', company: '/company', admin: '/admin' };
     navigate(routes[user.role]);

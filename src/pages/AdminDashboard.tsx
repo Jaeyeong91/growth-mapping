@@ -6,9 +6,10 @@ import { useToast } from '../contexts/ToastContext';
 import Header from '../components/Header';
 import { formatDate, formatHour } from '../utils/helpers';
 import { BookingStatus } from '../types';
+import { logApproval } from '../utils/logger';
 
 export default function AdminDashboard() {
-  const { users } = useAuth();
+  const { currentUser, users } = useAuth();
   const { bookings, updateBookingStatus, getAvailability } = useBooking();
   const { showToast } = useToast();
   const navigate = useNavigate();
@@ -36,6 +37,16 @@ export default function AdminDashboard() {
   const uniqueDates = [...new Set(bookings.map(b => b.date))].sort();
 
   const handleStatus = (id: string, status: BookingStatus) => {
+    const booking = bookings.find(b => b.id === id);
+    if (booking) {
+      const mentor = users.find(u => u.email === booking.mentorEmail);
+      const company = users.find(u => u.email === booking.companyEmail);
+      logApproval(
+        currentUser?.name || '', mentor?.name || booking.mentorEmail,
+        company?.name || booking.companyEmail, booking.date,
+        formatHour(booking.hour), status === 'approved' ? '승인' : '거절',
+      );
+    }
     updateBookingStatus(id, status);
     showToast(status === 'approved' ? '승인되었습니다.' : '거절되었습니다.', status === 'approved' ? 'success' : 'info');
   };
