@@ -21,14 +21,12 @@ function getCalendarClient() {
   if (!keyJson) throw new Error('GOOGLE_SERVICE_ACCOUNT_KEY not set');
 
   const key = JSON.parse(keyJson);
-  const auth = new google.auth.JWT(
-    key.client_email,
-    undefined,
-    key.private_key,
-    ['https://www.googleapis.com/auth/calendar'],
-    // domain-wide delegation: 매니저 계정으로 일정 생성
-    process.env.GOOGLE_CALENDAR_DELEGATE_EMAIL || undefined,
-  );
+  const auth = new google.auth.JWT({
+    email: key.client_email,
+    key: key.private_key,
+    scopes: ['https://www.googleapis.com/auth/calendar'],
+    subject: process.env.GOOGLE_CALENDAR_DELEGATE_EMAIL || undefined,
+  });
   return google.calendar({ version: 'v3', auth });
 }
 
