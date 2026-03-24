@@ -9,6 +9,7 @@ import CompanyDashboard from './pages/CompanyDashboard';
 import CompanyMentorView from './pages/CompanyMentorView';
 import AdminDashboard from './pages/AdminDashboard';
 import AdminAccounts from './pages/AdminAccounts';
+import AdminMentorSchedule from './pages/AdminMentorSchedule';
 import { ReactNode } from 'react';
 import { Role } from './types';
 
@@ -40,6 +41,7 @@ export default function App() {
               <Route path="/company/mentor/:id" element={<ProtectedRoute allowedRole="company"><CompanyMentorView /></ProtectedRoute>} />
               <Route path="/admin" element={<ProtectedRoute allowedRole="admin"><AdminDashboard /></ProtectedRoute>} />
               <Route path="/admin/accounts" element={<ProtectedRoute allowedRole="admin"><AdminAccounts /></ProtectedRoute>} />
+              <Route path="/admin/mentor/:id" element={<ProtectedRoute allowedRole="admin"><AdminMentorSchedule /></ProtectedRoute>} />
               <Route path="*" element={<RootRedirect />} />
             </Routes>
           </ToastProvider>

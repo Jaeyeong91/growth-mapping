@@ -12,7 +12,7 @@ export default function CompanyMentorView() {
   const { id } = useParams<{ id: string }>();
   const mentorEmail = decodeURIComponent(id || '');
   const { currentUser, users } = useAuth();
-  const { getAvailability, isSlotBooked, createBooking } = useBooking();
+  const { getAvailability, isSlotBooked, isSlotBlocked, createBooking } = useBooking();
   const { showToast } = useToast();
   const navigate = useNavigate();
 
@@ -76,18 +76,19 @@ export default function CompanyMentorView() {
                         const key = `${date}_${hour}`;
                         const available = availSet.has(key);
                         const booked = isSlotBooked(mentorEmail, date, hour);
+                        const blocked = isSlotBlocked(mentorEmail, date, hour);
                         return (
                           <td key={key} className="px-1 py-1 text-center">
-                            {available && !booked ? (
+                            {available && !booked && !blocked ? (
                               <button
                                 onClick={() => setModal({ date, hour })}
                                 className="w-full py-2 rounded text-xs font-medium bg-blue-500 text-white hover:bg-blue-600 transition"
                               >
                                 예약
                               </button>
-                            ) : booked ? (
+                            ) : booked || blocked ? (
                               <span className="block w-full py-2 rounded text-xs font-medium bg-gray-400 text-white">
-                                예약됨
+                                {booked ? '예약됨' : '블록'}
                               </span>
                             ) : (
                               <span className="block w-full py-2 rounded text-xs text-gray-300 bg-gray-50">

@@ -86,6 +86,7 @@ export default function AdminDashboard() {
                   <th className="text-center px-6 py-3 text-gray-500 font-medium">등록 슬롯</th>
                   <th className="text-center px-6 py-3 text-gray-500 font-medium">예약됨</th>
                   <th className="text-center px-6 py-3 text-gray-500 font-medium">잔여</th>
+                  <th className="text-center px-6 py-3 text-gray-500 font-medium">관리</th>
                 </tr>
               </thead>
               <tbody className="divide-y">
@@ -98,6 +99,14 @@ export default function AdminDashboard() {
                       <td className="px-6 py-3 text-center">{slots}</td>
                       <td className="px-6 py-3 text-center">{booked}</td>
                       <td className="px-6 py-3 text-center">{Math.max(0, slots - booked)}</td>
+                      <td className="px-6 py-3 text-center">
+                        <button
+                          onClick={() => navigate(`/admin/mentor/${encodeURIComponent(m.email)}`)}
+                          className="px-3 py-1 bg-blue-50 text-blue-600 rounded text-xs hover:bg-blue-100 transition"
+                        >
+                          일정 관리
+                        </button>
+                      </td>
                     </tr>
                   );
                 })}
