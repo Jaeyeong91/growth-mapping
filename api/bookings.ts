@@ -90,18 +90,10 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
                 buttonList: {
                   buttons: [
                     {
-                      text: '✅ 승인',
+                      text: '🔗 앱에서 확인',
                       onClick: {
                         openLink: {
-                          url: `${baseUrl}/api/bookings/${booking.id}/approve`,
-                        },
-                      },
-                    },
-                    {
-                      text: '❌ 반려',
-                      onClick: {
-                        openLink: {
-                          url: `${baseUrl}/api/bookings/${booking.id}/reject`,
+                          url: `${baseUrl}/admin`,
                         },
                       },
                     },
