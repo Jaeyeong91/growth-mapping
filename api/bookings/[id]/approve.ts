@@ -40,32 +40,33 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
     return res.status(500).send(resultPage('오류', '승인 처리 중 오류가 발생했습니다.', 'error'));
   }
 
-  // 4. Google Calendar 일정 생성 시도
+  // 4. 캘린더 링크 생성
   let calendarCreated = false;
   let calendarError = '';
+  let meetingCalendarUrl = '';
+  let wrapupCalendarUrl = '';
 
   try {
-    const googleKey = process.env.GOOGLE_SERVICE_ACCOUNT_KEY;
-    if (googleKey) {
-      const { createCalendarEvents } = await import('../../_lib/calendar.js');
-      const result = await createCalendarEvents(booking);
-      if (result.success) {
-        calendarCreated = true;
-        await supabase
-          .from('bookings')
-          .update({
-            calendar_created: true,
-            google_event_id: result.meetingEventId,
-            wrapup_event_id: result.wrapupEventId,
-          })
-          .eq('id', bookingId);
-      } else {
-        calendarError = result.error || 'Unknown error';
-      }
+    const { createCalendarLinks } = await import('../../_lib/calendar.js');
+    const result = await createCalendarLinks(booking);
+    if (result.success) {
+      calendarCreated = true;
+      meetingCalendarUrl = result.meetingCalendarUrl || '';
+      wrapupCalendarUrl = result.wrapupCalendarUrl || '';
+      await supabase
+        .from('bookings')
+        .update({
+          calendar_created: true,
+          google_event_id: meetingCalendarUrl,
+          wrapup_event_id: wrapupCalendarUrl,
+        })
+        .eq('id', bookingId);
+    } else {
+      calendarError = result.error || 'Unknown error';
     }
   } catch (e) {
-    calendarError = e instanceof Error ? e.message : 'Calendar creation failed';
-    console.error('Calendar creation error:', calendarError);
+    calendarError = e instanceof Error ? e.message : 'Calendar link creation failed';
+    console.error('Calendar link error:', calendarError);
   }
 
   // 5. 기업명, 멘토명 조회
