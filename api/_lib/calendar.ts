@@ -55,35 +55,19 @@ export async function createCalendarEvents(booking: BookingRow): Promise<Calenda
     const endTime = `${booking.date}T${endHour}:00:00+09:00`;
     const wrapupEndTime = `${booking.date}T${wrapupEndHour}:00:00+09:00`;
 
-    // 참석자 목록
-    const meetingAttendees = [
-      { email: booking.company_email },
-      { email: booking.mentor_email },
-    ];
-    const wrapupAttendees = [
-      { email: booking.company_email },
-    ];
-    if (mapping?.manager_email) {
-      meetingAttendees.push({ email: mapping.manager_email });
-      wrapupAttendees.push({ email: mapping.manager_email });
-    }
+    // 참석자 정보 (description에 포함)
+    const managerInfo = mapping?.manager_name ? `${mapping.manager_name} (${mapping.manager_email})` : '미지정';
+    const meetingDesc = `그로스맵핑 멘토링 미팅\n\n참여기업: ${companyName} (${booking.company_email})\n멘토: ${mentorName} (${booking.mentor_email})\n담당매니저: ${managerInfo}\n\n※ 참석자에게 이 일정을 공유해주세요.`;
+    const wrapupDesc = `그로스맵핑 멘토링 후속 논의\n\n참여기업: ${companyName} (${booking.company_email})\n담당매니저: ${managerInfo}\n\n※ 멘토는 이 미팅에 참석하지 않습니다.\n※ 참석자에게 이 일정을 공유해주세요.`;
 
-    // 1. 미팅 캘린더 일정 생성
+    // 1. 미팅 캘린더 일정 생성 (참석자 초대 없이 - Domain-wide Delegation 불필요)
     const meetingEvent = await calendar.events.insert({
       calendarId,
-      conferenceDataVersion: 1,
       requestBody: {
         summary: `[그로스맵핑] ${companyName} x ${mentorName}`,
-        description: `그로스맵핑 멘토링 미팅\n\n참여기업: ${companyName}\n멘토: ${mentorName}\n담당매니저: ${mapping?.manager_name || '미지정'}`,
+        description: meetingDesc,
         start: { dateTime: startTime, timeZone: 'Asia/Seoul' },
         end: { dateTime: endTime, timeZone: 'Asia/Seoul' },
-        attendees: meetingAttendees,
-        conferenceData: {
-          createRequest: {
-            requestId: `gm-meeting-${booking.id}`,
-            conferenceSolutionKey: { type: 'hangoutsMeet' },
-          },
-        },
         reminders: {
           useDefault: false,
           overrides: [{ method: 'popup', minutes: 30 }],
@@ -94,19 +78,11 @@ export async function createCalendarEvents(booking: BookingRow): Promise<Calenda
     // 2. Wrap-up 캘린더 일정 생성
     const wrapupEvent = await calendar.events.insert({
       calendarId,
-      conferenceDataVersion: 1,
       requestBody: {
         summary: `[그로스맵핑 Wrap-up] ${companyName}`,
-        description: `그로스맵핑 멘토링 후속 논의\n\n참여기업: ${companyName}\n담당매니저: ${mapping?.manager_name || '미지정'}\n\n* 멘토는 이 미팅에 참석하지 않습니다.`,
+        description: wrapupDesc,
         start: { dateTime: endTime, timeZone: 'Asia/Seoul' },
         end: { dateTime: wrapupEndTime, timeZone: 'Asia/Seoul' },
-        attendees: wrapupAttendees,
-        conferenceData: {
-          createRequest: {
-            requestId: `gm-wrapup-${booking.id}`,
-            conferenceSolutionKey: { type: 'hangoutsMeet' },
-          },
-        },
         reminders: {
           useDefault: false,
           overrides: [{ method: 'popup', minutes: 10 }],
