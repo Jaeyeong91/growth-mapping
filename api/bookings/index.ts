@@ -119,9 +119,10 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
           break;
         }
       } catch {
-        // 재시도 간격: 1초, 5초, 30초
-        if (attempt < 2) {
-          await new Promise(r => setTimeout(r, [1000, 5000][attempt]));
+        // 재시도 간격: 1초, 5초
+        const delays = [1000, 5000];
+        if (attempt < delays.length) {
+          await new Promise(r => setTimeout(r, delays[attempt]));
         }
       }
     }

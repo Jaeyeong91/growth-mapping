@@ -1,6 +1,10 @@
 import type { VercelRequest, VercelResponse } from '@vercel/node';
 import { supabase } from '../../_lib/supabase.js';
 
+function escapeHtml(str: string): string {
+  return str.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;');
+}
+
 export default async function handler(req: VercelRequest, res: VercelResponse) {
   const { id } = req.query;
   const bookingId = Array.isArray(id) ? id[0] : id;
@@ -46,8 +50,8 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
   const { data: mentorUser } = await supabase
     .from('users').select('name').eq('email', booking.mentor_email).single();
 
-  const companyName = companyUser?.name || booking.company_email;
-  const mentorName = mentorUser?.name || booking.mentor_email;
+  const companyName = escapeHtml(companyUser?.name || booking.company_email);
+  const mentorName = escapeHtml(mentorUser?.name || booking.mentor_email);
   const hourStr = `${String(booking.hour).padStart(2, '0')}:00`;
   const endHourStr = `${String(booking.hour + 1).padStart(2, '0')}:00`;
 
