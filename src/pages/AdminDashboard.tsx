@@ -53,9 +53,9 @@ export default function AdminDashboard() {
         const result = await response.json();
         await refreshBookings();
         if (result.calendarCreated) {
-          showToast('승인 완료! 캘린더 일정이 자동 생성되었습니다.', 'success');
+          showToast('승인 완료! 예약 목록에서 캘린더 추가 버튼을 확인하세요.', 'success');
         } else if (result.calendarError) {
-          showToast('승인 완료. (캘린더 생성 실패 - 설정을 확인하세요)', 'info');
+          showToast('승인 완료. (캘린더 링크 생성 실패)', 'info');
         } else {
           showToast('승인되었습니다.', 'success');
         }
@@ -174,6 +174,7 @@ export default function AdminDashboard() {
                     <th className="text-left px-4 py-3 text-gray-500 font-medium">날짜</th>
                     <th className="text-left px-4 py-3 text-gray-500 font-medium">시간</th>
                     <th className="text-left px-4 py-3 text-gray-500 font-medium">상태</th>
+                    <th className="text-center px-4 py-3 text-gray-500 font-medium">캘린더</th>
                     <th className="text-center px-4 py-3 text-gray-500 font-medium">처리</th>
                   </tr>
                 </thead>
@@ -190,6 +191,26 @@ export default function AdminDashboard() {
                           <td className="px-4 py-3">{formatDate(b.date)}</td>
                           <td className="px-4 py-3">{formatHour(b.hour)} ~ {formatHour(b.hour + 1)}</td>
                           <td className="px-4 py-3"><StatusBadge status={b.status} /></td>
+                          <td className="px-4 py-3 text-center">
+                            {b.calendarCreated && b.googleEventId ? (
+                              <div className="flex gap-1 justify-center">
+                                <a href={b.googleEventId} target="_blank" rel="noopener noreferrer"
+                                  className="px-2 py-1 bg-blue-50 text-blue-600 rounded text-xs hover:bg-blue-100 transition">
+                                  미팅
+                                </a>
+                                {b.wrapupEventId && (
+                                  <a href={b.wrapupEventId} target="_blank" rel="noopener noreferrer"
+                                    className="px-2 py-1 bg-purple-50 text-purple-600 rounded text-xs hover:bg-purple-100 transition">
+                                    Wrap-up
+                                  </a>
+                                )}
+                              </div>
+                            ) : b.status === 'approved' ? (
+                              <span className="text-gray-400 text-xs">미생성</span>
+                            ) : (
+                              <span className="text-gray-300 text-xs">-</span>
+                            )}
+                          </td>
                           <td className="px-4 py-3 text-center">
                             {b.status === 'pending' ? (
                               <div className="flex gap-2 justify-center">

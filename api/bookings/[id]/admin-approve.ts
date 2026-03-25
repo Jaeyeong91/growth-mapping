@@ -1,5 +1,6 @@
 import type { VercelRequest, VercelResponse } from '@vercel/node';
 import { supabase } from '../../_lib/supabase.js';
+import { createCalendarLinks } from '../../_lib/calendar.js';
 
 export default async function handler(req: VercelRequest, res: VercelResponse) {
   if (req.method !== 'POST') {
@@ -13,7 +14,6 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
     return res.status(400).json({ error: 'Missing booking ID' });
   }
 
-  // 1. 예약 조회
   const { data: booking, error } = await supabase
     .from('bookings')
     .select('*')
@@ -28,42 +28,31 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
     return res.status(409).json({ error: 'Booking already processed', status: booking.status });
   }
 
-  // 2. 승인 처리
+  // 승인 처리
   await supabase
     .from('bookings')
     .update({ status: 'approved' })
     .eq('id', bookingId);
 
-  // 3. Google Calendar 일정 생성 시도
-  let calendarCreated = false;
-  let calendarError = '';
+  // 캘린더 링크 생성
+  const result = await createCalendarLinks(booking);
 
-  try {
-    const googleKey = process.env.GOOGLE_SERVICE_ACCOUNT_KEY;
-    if (googleKey) {
-      const { createCalendarEvents } = await import('../../_lib/calendar.js');
-      const result = await createCalendarEvents(booking);
-      if (result.success) {
-        calendarCreated = true;
-        await supabase
-          .from('bookings')
-          .update({
-            calendar_created: true,
-            google_event_id: result.meetingEventId,
-            wrapup_event_id: result.wrapupEventId,
-          })
-          .eq('id', bookingId);
-      } else {
-        calendarError = result.error || 'Unknown error';
-      }
-    }
-  } catch (e) {
-    calendarError = e instanceof Error ? e.message : 'Calendar creation failed';
+  if (result.success) {
+    await supabase
+      .from('bookings')
+      .update({
+        calendar_created: true,
+        google_event_id: result.meetingCalendarUrl,
+        wrapup_event_id: result.wrapupCalendarUrl,
+      })
+      .eq('id', bookingId);
   }
 
   return res.status(200).json({
     success: true,
-    calendarCreated,
-    calendarError: calendarError || undefined,
+    calendarCreated: result.success,
+    meetingCalendarUrl: result.meetingCalendarUrl,
+    wrapupCalendarUrl: result.wrapupCalendarUrl,
+    calendarError: result.error || undefined,
   });
 }
